@@ -111,8 +111,13 @@ is the one that must be made continuous and checkable.
 
 ## The architecture — four planes by role
 
-Roles, never addresses. Each node is named for what it *does*; real hosts, subnets, and
-keys are absent by construction. The structure is what reproduces.
+Roles for the trust topology; tools named for the method. Each node is named for what it
+*does* — but the method names its instruments where that helps, because the toolkit was
+never the secret. What is absent is only the topology that would help an attacker: real
+hosts, subnets, keys. The concrete realization — per-agent WireGuard tunnels into an
+OPNsense choke-point, Suricata in pcap mode on the tunnel, Zeek processing, RITA building
+the fingerprint — is named throughout and walked end-to-end in the [real case](docs/real-case.md).
+The structure is what reproduces; the addresses are the operator's alone.
 
 ```
 ┌─ AGENT-HOST ─────────────────────────────────────────────────────────────────┐
@@ -178,15 +183,15 @@ because the record is made before masquerade. Bounded interface + pre-NAT = attr
 permanent and the capture is cheap enough to run continuously.
 
 **3 · Link-type conversion, or the analyzer reads nothing.** A capture taken on some tunnel
-interfaces carries a BSD-loopback (NULL) link header rather than raw IP, and a modern passive
-analyzer will silently emit *zero* connection logs from it. The trap: the analyzer produces
+interfaces carries a BSD-loopback (NULL) link header rather than raw IP, and **Zeek** (a modern
+passive analyzer) will silently emit *zero* connection logs from it. The trap: Zeek produces
 `tls`/`dns` logs but *no* `conn` log, and the importer then rejects the whole batch ("no conn
 logs — skipping"). An empty `conn` log is a signal. Name the conversion as a precondition, or
 spend an hour debugging the importer while the real fault sits a layer up.
 
 **4 · The rolling-import dedup trap — import into a *unique path*.** This one is subtle and
 silently breaks continuity if missed. A rolling importer keeps a per-dataset record of files
-already imported, so it doesn't double-count. The trap: at least one widely-used importer keys
+already imported, so it doesn't double-count. The trap: **RITA** keys
 that dedup on the **hash of the file path**, *not* the contents. A pipeline that always writes
 this hour's logs to the *same* path looks identical to the importer every hour:
 
