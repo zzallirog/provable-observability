@@ -15,8 +15,9 @@
 When declaration and observation are congruent across time — the identity is
 proven.**
 
-*From proven identity, clonability follows as a corollary — not as an engineering
-goal, but as a consequence of stable, attestable individuation.*
+*From proven identity, clonability follows as a corollary — not a copy of an
+agent's bits, but a reproduction of fully-specified conditions whose fingerprint
+you can re-verify against the network. A checkable act, not a deep clone.*
 
 A working pattern, not a spec. Built under real constraints on real hardware.
 Every claim below has a live equivalent somewhere.
@@ -256,14 +257,15 @@ SELECT dst, count() FROM agents.conn GROUP BY dst ORDER BY 2 DESC
 ### 05 · Guardrails — barriers, not conventions
 
 `mandate-check` runs before any agent acts. Each rule is enforced by the runtime,
-not asked of the model:
+not asked of the model — with one explicitly-marked exception, the **injection
+scan**, which is a best-effort filter, not a fail-closed barrier:
 
 | Guardrail | Mechanism |
 |---|---|
 | **killswitch** | sentinel file aborts the entire run |
 | **drift detection** | SHA-256 over each agent's prompt file, taken **at startup before any agent makes a call**; mismatch aborts the whole run — the council never loads an unapproved prompt |
 | **rate-limit** | call window by file mtime; window length from the manifest |
-| **injection scan** | researcher output scanned (regex over known override patterns: embedded `</s>`, `[INST]`/`[SYS]` tags, `ignore previous instructions`, role-switch directives) and stripped before council ingestion; a redaction marker replaces the removed span so the council sees a gap, not a silence |
+| **injection scan** *(best-effort, not fail-closed)* | a regex **first-pass** over *known* override patterns (embedded `</s>`, `[INST]`/`[SYS]` tags, `ignore previous instructions`, role-switch directives) in researcher output, stripped before council ingestion with a redaction marker so the council sees a gap, not a silence. It catches *known strings* — **not** novel or obfuscated injection, and it is blind to injection arriving inside a poisoned local RAG document (which crosses no wire and matches no pattern). A first-pass filter, not a barrier. |
 | **passport check** | exists · active · within valid_until · call in allowed_calls — fail-closed on every branch |
 | **audit** | every decision appended as one JSON row; optionally HMAC-signed |
 | **revoke** | drops the agent's forced-command line from `authorized_keys`, flips `status` in the manifest, sends SIGHUP to active SSH sessions matching that key's `from=` address — idempotent; keep a second SSH session open while you do this |
