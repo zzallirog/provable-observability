@@ -343,13 +343,14 @@ conceived it and built the canonical, on-chain version. Only the *shape* of the 
 borrowed here — wholesale and deliberately. There is no original contribution to the passport
 idea itself.
 
-**The network stack is mine.** [**safe-agent-env / provable-agent**](https://github.com/zzallirog/safe-agent-env)
-(my own public repo, and the lineage this document cites) gives the passport a chain-free body —
-flat JSON for the registry, an SSH forced-command for the keeper, an append-only log for the
-stamps; no wallet, no chain, no token. But that is the small part. The one real addition is the
-**network witness** a public-chain spec cannot assume you have: the passport declares *who*; the
+**The network stack is mine.** The passport gets a chain-free body — flat JSON for the
+registry, an SSH forced-command for the keeper, an append-only log for the stamps; no wallet,
+no chain, no token. But that is the small part. The one real addition is the **network
+witness** a public-chain spec cannot assume you have: the passport declares *who*; the
 witness, capturing pre-NAT at the choke-point, records *what the agent actually did*; the
-analytics node correlates the two over time.
+analytics node correlates the two over time. The concrete build — that stack *named*, with the
+live run — is included here as a real case: [docs/real-case.md](docs/real-case.md). (It earlier
+stood alone under the name `safe-agent-env`.)
 
 **This document is about the continuity of that witness.** The lineage proved the loop can close
 *once*; here it closes *continuously*, and the stability of that closure becomes a quantity with a
